@@ -158,10 +158,11 @@ def listen_print_loop(responses, stream):
     Same as in transcribe_streaming_mic, but keeps track of when a sent
     audio_chunk has been transcribed.
     """
+    time_zero = time.time()
     with_results = (r for r in responses if (
             r.results and r.results[0].alternatives))
     transcribe_streaming_mic.listen_print_loop(
-            _record_keeper(with_results, stream))
+            _record_keeper(with_results, stream), time_zero)
 
 
 def main(sample_rate, audio_src):
