@@ -64,7 +64,3 @@ class StatsManager(object):
 		print('Start timestamp: {0}'.format(self.start_timestamp))
 		print('End timestamp: {0}'.format(self.end_timestamp))
 		print('Emotions: {0}'.format([emo + ' : ' + str(self.facial_emotions[emo]) for emo in FACIAL_EMOTIONS]))
-
-
-s = StatsManager()
-s.dump_stats()
