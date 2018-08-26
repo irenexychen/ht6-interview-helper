@@ -43,6 +43,7 @@ class StatsCollector(object):
 		self.facial_emotions[emotion] += 1
 	
 	def finish(self):
+		assert(self.end_timestamp == 0)
 		self.end_timestamp = time.time()
 		# self.normalize_emo_stats()
 	
@@ -74,3 +75,4 @@ class StatsCollector(object):
 		print('End timestamp: {0}'.format(self.end_timestamp))
 		print('Emotions: {0}'.format([emo + ' : ' + str(self.facial_emotions[emo]) for emo in FACIAL_EMOTIONS]))
 		print('Eye contact rate: {0}'.format(self.calc_eye_contact_rate()))
+		print('Total number of frames: {0}'.format(self.total_frames))

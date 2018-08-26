@@ -1,17 +1,20 @@
 from setup import *
 from stats_collector import StatsCollector
-
+from emo_thread import EmotionsThread
 # eyetracking - see if person is making eye contact 
 
 class FaceTracker(object):
 
-    def __init__(self, stats, video_path=None, is_demo=False):
+    def __init__(self, stats, video_path=None, is_demo=False, run_emo_threads=True):
         self.stats = stats
         self.start_time = time.time()
         self.video_path = video_path
         self.is_demo = is_demo
+        self.work_queue = Queue.Queue()
+        self.emo_threads = []
+        self.run_emo_threads = run_emo_threads
 
-    def setup_cap(self):
+    def setup(self):
         self.cap = cv2.VideoCapture(self.video_path) if self.video_path else cv2.VideoCapture(0)
 
         try:
@@ -23,14 +26,39 @@ class FaceTracker(object):
         self.img_height = self.cap.get(3)
         self.img_width =  self.cap.get(4)
 
+        self.cap.set(cv2.CAP_PROP_FPS, CV2_FPS)
+        print(self.cap.get(cv2.CAP_PROP_FPS))
+
+        if self.run_emo_threads:
+            self.launch_emo_threads()
+
 
     def begin_tracking(self):
-        self.setup_cap()
-        while (time.time() - self.start_time < TIME_LIMIT):
+        self.setup()
+        while (time.time() - self.start_time < VIDEO_CAPTURE_TIME_LIMIT):
             ret, img = self.cap.read()
             if ret == True:
-                # self.process_emotions(img)
                 self.process_eye_contact(img)
+
+                img, cropped_face = self.crop_face(img)
+
+                # Indico API is slow, so use threads to parallelize
+                #############################
+                if self.run_emo_threads and cropped_face is not None:
+                    MUTEX.acquire()
+                    self.work_queue.put(cropped_face)
+                    # print(self.stats.total_frames)
+                    MUTEX.release()
+                #############################
+
+                # Commented out, prefer to use threads to interact with
+                # Indico API
+                #############################
+                # if cropped_face is not None:
+                #     img = self.process_emotions(img, cropped_face)
+                
+                if self.is_demo:
+                    cv2.imshow('Face', img)
 
             self.stats.inc_total_frames()
             if cv2.waitKey(1) & 0xFF == ord('q'):
@@ -39,6 +67,18 @@ class FaceTracker(object):
         self.cap.release()
         cv2.destroyAllWindows()
 
+        # wait for threads to finish processing
+        if self.run_emo_threads:
+            while not self.work_queue.empty():
+                pass
+
+            print ('Set thread exit flags to TRUE...')
+
+            for t in self.emo_threads:
+                t.set_exit_flag()
+                t.join()
+
+        print ("Exiting tracker...")
         self.stats.finish()
 
     ######################################################
@@ -47,11 +87,11 @@ class FaceTracker(object):
 
     def process_eye_contact(self, img):
         eyes = cv2.CascadeClassifier(HAAR_CASCADE_EYE)
-        detected = eyes.detectMultiScale(img, 1.3, 5)
+        detected_eyes = eyes.detectMultiScale(img, 1.3, 5)
         eye_contact = True
         eye_box_dims = []
 
-        for (x, y, w, h) in detected:
+        for (x, y, w, h) in detected_eyes:
             eye_box_dims.append((w, h))
             if self.is_demo:
                 cv2.rectangle(img, (x,y), (x + w, y + h), BLUE ,1)
@@ -84,7 +124,7 @@ class FaceTracker(object):
                 cv2.putText(img, 'YES', (int(self.img_width * 0.2), int(self.img_height * 0.2)), cv2.FONT_HERSHEY_SIMPLEX, 4, GREEN, cv2.LINE_AA)
             else:
                 cv2.putText(img, ' NO', (int(self.img_width * 0.2), int(self.img_height * 0.2)), cv2.FONT_HERSHEY_SIMPLEX, 4, RED, cv2.LINE_AA)
-            cv2.imshow('eyes', img)
+            # cv2.imshow('eyes', img)
 
         if eye_contact:
             self.stats.inc_eye_contact_frames()
@@ -133,22 +173,34 @@ class FaceTracker(object):
     # Functions for processing emotions
     ######################################################
 
-    def process_emotions(self, img, detect=False, sensitivity=0.8):
-        face_img = self.crop_face(img)
-        fer_dict = indicoio.fer(img, detect=detect, sensitivity=sensitivity)
-        max_emotion = max(FACIAL_EMOTIONS, key=lambda x : fer_dict[x])
-        self.stats.inc_emotion(max_emotion)
+    def launch_emo_threads(self):
+        for i in range (NUM_EMO_THREADS):
+            new_thread = EmotionsThread(i, self.stats, self.work_queue)
+            new_thread.start()
+            self.emo_threads.append(new_thread)
 
     def crop_face(self, img):
-        pass
+        # img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        face_cascade = cv2.CascadeClassifier(HAAR_CASCADE_FRONTAL_FACE)
+
+        faces = face_cascade.detectMultiScale(img, 1.3, 5)
+
+        for (x, y, w, h) in faces:
+            cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 2)
+
+        if len(faces) > 0:
+            max_face = max(faces, key=lambda x : x[2] + x[3])
+            x, y, w, h = max_face
+            return img, img[y : y + h, x : x + w]
+        else:
+            return img, None
+
+    def process_emotions(self, img, face_img):
+        fer_dict = indicoio.fer(face_img)
+        max_emotion = max(FACIAL_EMOTIONS, key=lambda x : fer_dict[x])
+        self.stats.inc_emotion(max_emotion)
+        cv2.putText(img, max_emotion, (int(self.img_width * 0.2), int(self.img_height * 0.2)), cv2.FONT_HERSHEY_SIMPLEX, 4, RED, cv2.LINE_AA)
+        return img
 
     def get_stats(self):
         return self.stats
-
-''' 
-# Test code 
-
-s = StatsCollector()
-t = FaceTracker(s, is_demo=True)
-t.begin_tracking()
-'''
