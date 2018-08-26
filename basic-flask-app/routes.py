@@ -24,9 +24,9 @@ def login():
 # 	return Response(video_stream(),
 #                     mimetype='multipart/x-mixed-replace; boundary=frame')
 
-@app.route('/analysis')
+@app.route('/analytics')
 def analysis():
-    return render_template('analysis.html')
+    return render_template('analytics.html')
 
 
 @app.route('/camera')

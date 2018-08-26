@@ -1840,11 +1840,11 @@ body-.mobile-nav-active #mobile-nav-toggle{
 }
 .banner-area{
     background:url(../img/header-bckgnd.png) center;
-    background-repeat: no-repeat;
-     background-size:auto
+    background-repeat:no-repeat;
+    background-size:cover
 }
 .banner-area .overlay-bg{
-    background-color:rgba(59,172,240,0.9-)
+    background-color:rgba(59,172,240,0.4)
 }
 .banner-content{
     margin-top:-90px;
