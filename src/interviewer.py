@@ -113,6 +113,7 @@ class InterviewAI(object):
             eye_img = img[y : y + h, x : x + w]
             circles = self.detect_pupils(eye_img, (w + h) / 2)
             if circles is not None:
+
                 circles = np.asarray(circles)
                 if 4 in circles.shape:
                     while len(circles.shape) > 2:
