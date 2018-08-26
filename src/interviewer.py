@@ -2,6 +2,7 @@ from setup import *
 from stats_collector import StatsCollector
 from emo_thread import EmotionsThread
 from gcloud_thread import GCloudThread
+import sys
 # eyetracking - see if person is making eye contact 
 
 class InterviewAI(object):
@@ -46,6 +47,8 @@ class InterviewAI(object):
     def begin(self):
         self.setup()
         print('Launching interviewer...')
+        sys.stderr.flush()
+        sys.stdout.flush()
         while (time.time() - self.start_time < VIDEO_CAPTURE_TIME_LIMIT):
             ret, img = self.cap.read()
             if ret == True:
@@ -111,7 +114,14 @@ class InterviewAI(object):
             circles = self.detect_pupils(eye_img, (w + h) / 2)
             if circles is not None:
                 print(circles)
+
+                circles = np.asarray(circles)
                 # get circle shortest distance away from centre of bounding box, which is (hopefully) the eyeball
+                n_dims = circles.ndims 
+
+                for i in range(n_dims-2):
+                    circles = circles[0]
+                    
                 pupil = min(circles, key=lambda c : (c[0] - w / 2) * (c[0] - w / 2) + (c[1] - h / 2) *(c[1] - h / 2))
 
                 if self.is_demo:

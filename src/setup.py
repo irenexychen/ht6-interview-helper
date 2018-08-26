@@ -31,8 +31,8 @@ STANDARD_EYE_BOX_DIFF_TOLERANCE_X = 10
 STANDARD_EYE_BOX_DIFF_TOLERANCE_Y = STANDARD_EYE_BOX_DIFF_TOLERANCE_X
 STANDARD_EYE_DIFF_TOLERANCE = 10
 
-HAAR_CASCADE_EYE = 'haarcascade_eye.xml'
-HAAR_CASCADE_FRONTAL_FACE = 'haarcascade_frontalface_default.xml'
+HAAR_CASCADE_EYE = 'src/haarcascade_eye.xml'
+HAAR_CASCADE_FRONTAL_FACE = 'src/haarcascade_frontalface_default.xml'
 
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)

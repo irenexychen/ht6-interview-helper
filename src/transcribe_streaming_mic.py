@@ -40,7 +40,7 @@ from six.moves import queue
 
 import os 
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] \
-    = '/.cred.json'
+    = './src/cred.json'
 
 class MicrophoneStream(object):
     """Opens a recording stream as a generator yielding the audio chunks."""
