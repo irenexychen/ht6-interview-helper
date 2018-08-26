@@ -1,18 +1,26 @@
 from setup import *
 from stats_collector import StatsCollector
 from emo_thread import EmotionsThread
+from gcloud_thread import GCloudThread
 # eyetracking - see if person is making eye contact 
 
-class FaceTracker(object):
+class InterviewAI(object):
 
-    def __init__(self, stats, video_path=None, is_demo=False, run_emo_threads=True):
+    def __init__(self, stats, video_path=None, 
+                 is_demo=False, 
+                 run_eye_tracker=False,
+                 run_emo_threads=False, 
+                 run_gcloud_threads=False):
         self.stats = stats
         self.start_time = time.time()
         self.video_path = video_path
         self.is_demo = is_demo
         self.work_queue = Queue.Queue()
+        self.run_eye_tracker = run_eye_tracker
         self.emo_threads = []
         self.run_emo_threads = run_emo_threads
+        self.gcloud_threads = []
+        self.run_gcloud_threads = run_gcloud_threads
 
     def setup(self):
         self.cap = cv2.VideoCapture(self.video_path) if self.video_path else cv2.VideoCapture(0)
@@ -27,36 +35,34 @@ class FaceTracker(object):
         self.img_width =  self.cap.get(4)
 
         self.cap.set(cv2.CAP_PROP_FPS, CV2_FPS)
-        print(self.cap.get(cv2.CAP_PROP_FPS))
 
         if self.run_emo_threads:
             self.launch_emo_threads()
 
+        if self.run_gcloud_threads:
+            self.launch_gcloud_threads()
 
-    def begin_tracking(self):
+
+    def begin(self):
         self.setup()
+        print('Launching interviewer...')
         while (time.time() - self.start_time < VIDEO_CAPTURE_TIME_LIMIT):
             ret, img = self.cap.read()
             if ret == True:
-                self.process_eye_contact(img)
+                if self.run_eye_tracker:
+                    self.process_eye_contact(img)
 
-                img, cropped_face = self.crop_face(img)
+                if self.run_emo_threads:
+                    img, cropped_face = self.crop_face(img)
+                    # Indico API is slow, so use threads to parallelize
+                    if cropped_face is not None:
+                        EMO_MUTEX.acquire()
+                        self.work_queue.put(cropped_face)
+                        EMO_MUTEX.release()
 
-                # Indico API is slow, so use threads to parallelize
-                #############################
-                if self.run_emo_threads and cropped_face is not None:
-                    MUTEX.acquire()
-                    self.work_queue.put(cropped_face)
-                    # print(self.stats.total_frames)
-                    MUTEX.release()
-                #############################
-
-                # Commented out, prefer to use threads to interact with
-                # Indico API
-                #############################
                 # if cropped_face is not None:
                 #     img = self.process_emotions(img, cropped_face)
-                
+
                 if self.is_demo:
                     cv2.imshow('Face', img)
 
@@ -72,13 +78,19 @@ class FaceTracker(object):
             while not self.work_queue.empty():
                 pass
 
-            print ('Set thread exit flags to TRUE...')
+            print ('Set emotion thread exit flags to TRUE...')
 
             for t in self.emo_threads:
                 t.set_exit_flag()
                 t.join()
 
-        print ("Exiting tracker...")
+        if self.run_gcloud_threads:
+            print ('Set Google Cloud thread exit flags to TRUE...')
+            for t in self.gcloud_threads:
+                t.set_exit_flag()
+                t.join()
+
+        print ("Interviewer module exiting...")
         self.stats.finish()
 
     ######################################################
@@ -124,7 +136,6 @@ class FaceTracker(object):
                 cv2.putText(img, 'YES', (int(self.img_width * 0.2), int(self.img_height * 0.2)), cv2.FONT_HERSHEY_SIMPLEX, 4, GREEN, cv2.LINE_AA)
             else:
                 cv2.putText(img, ' NO', (int(self.img_width * 0.2), int(self.img_height * 0.2)), cv2.FONT_HERSHEY_SIMPLEX, 4, RED, cv2.LINE_AA)
-            # cv2.imshow('eyes', img)
 
         if eye_contact:
             self.stats.inc_eye_contact_frames()
@@ -180,7 +191,7 @@ class FaceTracker(object):
             self.emo_threads.append(new_thread)
 
     def crop_face(self, img):
-        # img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         face_cascade = cv2.CascadeClassifier(HAAR_CASCADE_FRONTAL_FACE)
 
         faces = face_cascade.detectMultiScale(img, 1.3, 5)
@@ -201,6 +212,16 @@ class FaceTracker(object):
         self.stats.inc_emotion(max_emotion)
         cv2.putText(img, max_emotion, (int(self.img_width * 0.2), int(self.img_height * 0.2)), cv2.FONT_HERSHEY_SIMPLEX, 4, RED, cv2.LINE_AA)
         return img
+
+    ######################################################
+    # Functions for Google Cloud speech-to-text
+    ######################################################
+
+    def launch_gcloud_threads(self):
+        for i in range (NUM_GCLOUD_THREADS):
+            new_thread = GCloudThread(i, self.stats)
+            new_thread.start()
+            self.gcloud_threads.append(new_thread)
 
     def get_stats(self):
         return self.stats

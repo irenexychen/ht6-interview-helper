@@ -1,9 +1,9 @@
 from setup import *
 
 class EmotionsThread(threading.Thread):
-    def __init__(self, ID, stats, work_queue):
+    def __init__(self, thread_ID, stats, work_queue):
       threading.Thread.__init__(self)
-      self.thread_ID = ID
+      self.thread_ID = thread_ID
       self.stats = stats
       self.work_queue = work_queue
       self.exitflag = False
@@ -12,13 +12,13 @@ class EmotionsThread(threading.Thread):
     def run(self):
         while not self.exitflag:
             # print('Thread ' + str(self.thread_ID) + ' chillling, exit flag is ' + str(self.exitflag))
-            MUTEX.acquire()
+            EMO_MUTEX.acquire()
             if not self.work_queue.empty():
                 face_img = self.work_queue.get()
-                MUTEX.release()
+                EMO_MUTEX.release()
                 self.process_emotions(face_img)
             else:
-                MUTEX.release()
+                EMO_MUTEX.release()
             time.sleep(1)
         print('Thread {0} exiting...'.format(self.thread_ID))
                
