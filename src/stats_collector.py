@@ -5,11 +5,9 @@ eg. words per minute (WPM)
 	filler word counter
 
 '''
-import time
+from setup import *
 
-FACIAL_EMOTIONS = ['happy', 'sad', 'angry', 'fear', 'surprise', 'neutral']
-
-class StatsManager(object):
+class StatsCollector(object):
 		
 	def __init__(self):
 		self.num_filler_words = 0
@@ -19,7 +17,12 @@ class StatsManager(object):
 		self.start_timestamp = time.time()
 		self.end_timestamp = 0
 		self.facial_emotions = {emo : 0 for emo in FACIAL_EMOTIONS}
-	
+		self.eye_contact_frames = 0
+		self.total_frames = 0
+
+	def inc_total_frames(self):
+		self.total_frames += 1
+		
 	def inc_num_filler_words(self):
 		self.num_filler_words += 1
 	
@@ -31,10 +34,18 @@ class StatsManager(object):
 	
 	def inc_neg_words(self):
 		self.neg_word_choices += 1
+
+	def inc_eye_contact_frames(self):
+		self.eye_contact_frames += 1
+
+	def inc_emotion(self, emotion):
+		assert(emotion in FACIAL_EMOTIONS)
+		self.facial_emotions[emotion] += 1
 	
 	def finish(self):
+		assert(self.end_timestamp == 0)
 		self.end_timestamp = time.time()
-		self.normalize_emo_stats()
+		# self.normalize_emo_stats()
 	
 	def get_elapsed_time(self):
 		assert(self.end_timestamp != 0)
@@ -48,10 +59,9 @@ class StatsManager(object):
 		s = float(sum(self.facial_emotions.values()))
 		for k in self.facial_emotions.keys():
 			self.facial_emotions[k] /= s
-	
-	def inc_emotion(self, emotion):
-		assert(emotion in FACIAL_EMOTIONS)
-		self.facial_emotions[emotion] += 1
+
+	def calc_eye_contact_rate(self):
+		return float(self.eye_contact_frames) / self.total_frames
 
 	def dump_stats(self):
 		print('===================')
@@ -64,3 +74,5 @@ class StatsManager(object):
 		print('Start timestamp: {0}'.format(self.start_timestamp))
 		print('End timestamp: {0}'.format(self.end_timestamp))
 		print('Emotions: {0}'.format([emo + ' : ' + str(self.facial_emotions[emo]) for emo in FACIAL_EMOTIONS]))
+		print('Eye contact rate: {0}'.format(self.calc_eye_contact_rate()))
+		print('Total number of frames: {0}'.format(self.total_frames))
