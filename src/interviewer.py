@@ -113,11 +113,14 @@ class InterviewAI(object):
             eye_img = img[y : y + h, x : x + w]
             circles = self.detect_pupils(eye_img, (w + h) / 2)
             if circles is not None:
-                print (circles)
-                while len(circles[0]) != 3:
-                    circles = circles[0]
-                print (circles)
-                print ('')
+                print (circles, circles.shape)
+                try:
+                    print (circles[0].shape)
+                    while (circles[0].shape)[0] != 3:
+                        circles = circles[0]
+                except:
+                    pass
+               
 
                 pupil = min(circles, key=lambda c : (c[0] - w / 2) * (c[0] - w / 2) + (c[1] - h / 2) *(c[1] - h / 2))
                 if self.is_demo:

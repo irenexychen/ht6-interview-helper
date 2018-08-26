@@ -37,7 +37,7 @@ def demo_status():
         print("testing INFO", file=sys.stderr)
         sys.stderr.flush()
         sys.stdout.flush()
-        lib_processing.main(emo=False,gcloud=False)
+        lib_processing.main()
         return jsonify(result="started")
     else:
         print("rip in pieces", file=sys.stderr)
