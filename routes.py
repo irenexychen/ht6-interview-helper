@@ -45,4 +45,4 @@ def video_viewer():
                     mimetype='multipart/x-mixed-replace; boundary=frame')
  
 if __name__ == '__main__':
-    app.run(host='127.0.0.1', debug=True, threaded=True)
+    app.run(debug=True, threaded=True, use_reloader=True)
