@@ -20,7 +20,7 @@ import collections
 import google.api_core.exceptions as exceptions
 
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] \
-    = '../ted_gcloud_service_credentials.json'
+    = './cred.json'
 
 class ResumableMicrophoneStream(transcribe_streaming_mic.MicrophoneStream):
     """Opens a recording stream as a generator yielding the audio chunks."""
