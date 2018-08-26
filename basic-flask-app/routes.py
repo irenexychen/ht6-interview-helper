@@ -19,11 +19,10 @@ def register():
 def login():
     return render_template('login.html')
 
-@app.route('/camera')
-def camera():
-	return Response(video_stream(),
-                    mimetype='multipart/x-mixed-replace; boundary=frame')
-    return render_template('get-ready.html')
+# @app.route('/camera')
+# def camera():
+# 	return Response(video_stream(),
+#                     mimetype='multipart/x-mixed-replace; boundary=frame')
 
 @app.route('/analysis')
 def analysis():

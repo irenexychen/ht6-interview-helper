@@ -28,11 +28,7 @@
 			<link rel="stylesheet" href="../static/css/animate.min.css">
 			<link rel="stylesheet" href="../static/css/owl.carousel.css">
 			<link rel="stylesheet" href="../static/css/main.css">
-			<script>
-				.banner-background{
-					background:url(../img/header-bckgnd.png)
-				}
-			</script>
+
 		</head>
 		<body>
 
@@ -47,7 +43,7 @@
 				          <li class="menu-active"><a href="#home">Home</a></li>
 				          <li><a href="#about">About</a></li>
 				          <li><a href="#product">Our Product</a></li>
-				          <!-- <li><a href="#testimonial">Testimonial</a></li> -->
+				          <li><a href="#demo">Demo</a></li>
 				          <li><a class="ticker-btn" href="#">Get Started</a></li>				          
 				        </ul>
 				      </nav><!-- #nav-menu-container -->		    		
@@ -77,9 +73,6 @@
 			<!-- Start feature Area -->
 			<section class="feature-area pb-100" id="about">
 				<div class="container">
-					<div class="row mockup-container">
-						<img class="mx-auto d-block img-fluid" src="../static/img/laptop.png" alt="">
-					</div>
 					<div class="row d-flex justify-content-center" id="product">
 						<div class="menu-content pt-100 pb-60 col-lg-10">
 							<div class="title text-center">
@@ -126,6 +119,20 @@
 
 				</div>
 				</div>	
+			</section>
+
+
+			<section class = "pb-100" id="demo">
+				<div id="container align-items-center" >
+				<h1>Streaming Video Recorder</h1>
+				  <div id="recorder">
+				    <button id="record">Record</button>
+				    <button id="stop">Stop</button>
+				    <a id="download"></a>
+				    <script type="text/javascript" src="{{ url_for('static', filename='js/recorder.js') }}"></script>      
+				  </div>
+				  <img id="video" src="{{ url_for('video_viewer') }}">
+				</div>
 			</section>
 			<!-- End feature Area -->
 
