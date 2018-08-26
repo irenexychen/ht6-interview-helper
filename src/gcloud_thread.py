@@ -234,10 +234,6 @@ class GCloudThread(threading.Thread):
 
             # print(transcript)
             full_dict = transcript.split()
-            print (prev_sentence, full_dict)
-            print (len(prev_sentence), len(full_dict))
-            print (not self.first and len(prev_sentence) > len(full_dict))
-            print ('')
 
             if not self.first and len(prev_sentence) > len(full_dict):
                 self.first = False
