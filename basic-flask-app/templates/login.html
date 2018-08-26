@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+
+   <title>Authentication with firebase</title>
+    <script src="https://www.gstatic.com/firebasejs/5.4.1/firebase.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/5.4.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/5.4.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/5.4.1/firebase-database.js"></script>
+    <script>
+      // Initialize Firebase
+      var config = {
+        apiKey: "AIzaSyAxGVYX5WK4vdQedv-M_dmXKtOz5ktiqGA",
+        authDomain: "elevaite-f3c6a.firebaseapp.com",
+        databaseURL: "https://elevaite-f3c6a.firebaseio.com",
+        projectId: "elevaite-f3c6a",
+        storageBucket: "elevaite-f3c6a.appspot.com",
+        messagingSenderId: "106023660848"
+      };
+      firebase.initializeApp(config);
+    </script>
+    <script src="../static/js/vendor/jquery-2.2.4.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.../static/js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="../static/js/vendor/bootstrap.min.js"></script>
+    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBhOdIF3Y9382fqJYt5I_sswSrEw5eihAA"></script>
+      <script src="../static/js/easing.min.js"></script>
+    <script src="../static/js/hoverIntent.js"></script>
+    <script src="../static/js/superfish.min.js"></script>
+    <script src="../static/js/jquery.ajaxchimp.min.js"></script>
+    <script src="../static/js/jquery.magnific-popup.min.js"></script>
+    <script src="../static/js/owl.carousel.min.js"></script>
+    <script src="../static/js/jquery.sticky.js"></script>
+    <script src="../static/js/jquery.nice-select.min.js"></script>
+    <script src="../static/js/parallax.min.js"></script>
+    <script src="../static/js/mail-script.js"></script>
+    <script src="../static/js/main.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Lato:100,200,400,300,500,600,700" rel="stylesheet">
+		<!-- CSS ============================================= -->
+		<link rel="stylesheet" href="../static/css/linearicons.css">
+		<link rel="stylesheet" href="../static/css/font-awesome.min.css">
+		<link rel="stylesheet" href="../static/css/bootstrap.css">
+		<link rel="stylesheet" href="../static/css/magnific-popup.css">
+		<link rel="stylesheet" href="../static/css/nice-select.css">
+		<link rel="stylesheet" href="../static/css/animate.min.css">
+		<link rel="stylesheet" href="../static/css/owl.carousel.css">
+		<link rel="stylesheet" href="../static/css/main.css">
+  </head>
+  <body>
+      <script>
+
+      function toggleSignIn() {
+      if (firebase.auth().currentUser) {
+        // [START signout]
+        firebase.auth().signOut();
+        // [END signout]
+      } else {
+        var email = document.getElementById('email').value;
+        var password = document.getElementById('password').value;
+        if (email.length < 4) {
+          alert('Please enter an email address.');
+          return;
+        }
+        if (password.length < 4) {
+          alert('Please enter a password.');
+          return;
+        }
+        // Sign in with email and pass.
+        // [START authwithemail]
+        firebase.auth().signInWithEmailAndPassword(email, password).catch(function(error) {
+          // Handle Errors here.
+          var errorCode = error.code;
+          var errorMessage = error.message;
+          // [START_EXCLUDE]
+          if (errorCode === 'auth/wrong-password') {
+            alert('Wrong password.');
+          } else {
+            alert(errorMessage);
+          }
+          console.log(error);
+
+          // [END_EXCLUDE]
+        });
+        // [END authwithemail]
+      }
+
+    }
+
+    function handleSignUp() {
+      var email = document.getElementById('email').value;
+      var password = document.getElementById('password').value;
+      if (email.length < 4) {
+        alert('Please enter an email address.');
+        return;
+      }
+      if (password.length < 4) {
+        alert('Please enter a password.');
+        return;
+      }
+      // Sign in with email and pass.
+      // [START createwithemail]
+      firebase.auth().createUserWithEmailAndPassword(email, password).catch(function(error) {
+        // Handle Errors here.
+        var errorCode = error.code;
+        var errorMessage = error.message;
+        // [START_EXCLUDE]
+        if (errorCode == 'auth/weak-password') {
+          alert('The password is too weak.');
+        } else {
+          alert(errorMessage);
+        }
+        console.log(error);
+        // [END_EXCLUDE]
+      });
+      // [END createwithemail]
+    }
+    /**
+     * Sends an email verification to the user.
+     */
+    function sendEmailVerification() {
+      // [START sendemailverification]
+      firebase.auth().currentUser.sendEmailVerification().then(function() {
+        // Email Verification sent!
+        // [START_EXCLUDE]
+        alert('Email Verification Sent!');
+        // [END_EXCLUDE]
+      });
+      // [END sendemailverification]
+    }
+    function sendPasswordReset() {
+      var email = document.getElementById('email').value;
+      // [START sendpasswordemail]
+      firebase.auth().sendPasswordResetEmail(email).then(function() {
+        // Password Reset Email Sent!
+        // [START_EXCLUDE]
+        alert('Password Reset Email Sent!');
+        // [END_EXCLUDE]
+      }).catch(function(error) {
+        // Handle Errors here.
+        var errorCode = error.code;
+        var errorMessage = error.message;
+        // [START_EXCLUDE]
+        if (errorCode == 'auth/invalid-email') {
+          alert(errorMessage);
+        } else if (errorCode == 'auth/user-not-found') {
+          alert(errorMessage);
+        }
+        console.log(error);
+        // [END_EXCLUDE]
+      });
+      // [END sendpasswordemail];
+    }
+
+    function initApp() {
+      // Listening for auth state changes.
+      // [START authstatelistener]
+      firebase.auth().onAuthStateChanged(function(user) {
+        // [START_EXCLUDE silent]
+
+        // [END_EXCLUDE]
+        if (user) {
+          // User is signed in.
+          var displayName = user.displayName;
+          var email = user.email;
+          var emailVerified = user.emailVerified;
+          var photoURL = user.photoURL;
+          var isAnonymous = user.isAnonymous;
+          var uid = user.uid;
+          var providerData = user.providerData;
+          // [START_EXCLUDE]
+          document.getElementById('quickstart-sign-in-status').textContent = 'Signed in';
+          document.getElementById('quickstart-sign-in').textContent = 'Sign out';
+          document.getElementById('email').value = "";
+          document.getElementById('password').value = "";
+          window.location = "index.html";
+        //document.getElementById('quickstart-account-details').textContent = JSON.stringify(user, null, '  ');
+          if (!emailVerified) {
+            //document.getElementById('quickstart-verify-email').disabled = false;
+          }
+          // [END_EXCLUDE]
+        } else {
+          // User is signed out.
+          // [START_EXCLUDE]
+          document.getElementById('quickstart-sign-in-status').textContent = 'Signed out';
+          document.getElementById('quickstart-sign-in').textContent = 'Sign in';
+          document.getElementById('quickstart-account-details').textContent = 'null';
+          // [END_EXCLUDE]
+        }
+        // [START_EXCLUDE silent]
+      //  document.getElementById('quickstart-sign-in').disabled = false;
+        // [END_EXCLUDE]
+      });
+      // [END authstatelistener]
+
+      document.getElementById('quickstart-sign-in').addEventListener('click', toggleSignIn, false);
+      document.getElementById('quickstart-sign-up').addEventListener('click', handleSignUp, false);
+      document.getElementById('quickstart-verify-email').addEventListener('click', sendEmailVerification, false);
+      document.getElementById('quickstart-password-reset').addEventListener('click', sendPasswordReset, false);
+    }
+    window.onload = function() {
+      initApp();
+    };
+
+      </script>
+
+
+
+          <header id="header" id="home">
+            <div class="container">
+              <div class="row align-items-center justify-content-between d-flex">
+                <div id="logo">
+                  <a href="."><img src="../static/img/elevaite-wide.png" vspace="20" alt="" title="" /></a>
+                </div>
+                <nav id="nav-menu-container">
+                  <ul class="nav-menu">
+                    <li class="menu-active"><a href="index.html#home">Home</a></li>
+                    <li><a href="index.html#product">Our Product</a></li>
+                    <li><a href="index.html#demo">Demo</a></li>
+                    <li><a class="ticker-btn" href="index.html#">Get Started</a></li>
+                  </ul>
+                </nav><!-- #nav-menu-container -->
+              </div>
+            </div>
+          </header><!-- #header -->
+
+
+          <!-- start banner Area -->
+          <section class="banner-area banner-background relative" id="home">
+          <div class="overlay overlay-bg"></div>
+          <div class="container">
+            <div class="row fullscreen d-flex align-items-center justify-content-center">
+              <div class="banner-content col-lg-8">
+
+                <h1 class="text-white" style="margin-bottom: 5%">Log in or sign up</h1>
+                <div style="margin: 0 auto; padding-top: 5%;background:rgba(0,0,0,0.3); width: 70%">
+
+
+                    <input type="text" id="email" name="email" placeholder="Email"/>
+                    <br/><br/>
+                    <input type="password" id="password" name="password" placeholder="Password"/>
+                    <br/><br/>
+                    <button id="quickstart-sign-in" name="signin">Sign In</button>
+                    <br/><br/>
+                    <button id="quickstart-sign-up" name="signup">Sign Up</button>
+                    <br/><br/>
+
+                    <div class="quickstart-user-details-container">
+                      Firebase sign-in status: <span id="quickstart-sign-in-status">Unknown</span>
+
+                    </div>
+                  </div>
+
+                <!--<h1 class="text-white ">
+                  Elev<b class="text-white">AI</b>te Yourself
+                </h1>
+                <p class="pt-40 p-20 text-white">
+                  Whether you're a job seeker practicing your elevator pitch, or an interviewer holding remote interviews, ElevAIte has a thing for you.
+                </p>-->
+              </div>
+            </div>
+          </div>
+          </section>
+          <!-- End banner Area -->
+
+
+
+
+
+
+          <!-- start footer Area -->
+          <footer class="footer-area section-gap">
+          <div class="container">
+            <div class="row">
+              <div class="col-lg-5 col-md-6 col-sm-6">
+                <div class="single-footer-widget">
+                  <h6>About Us</h6>
+                  <p>
+                    Check out our <a href="">github</a> repo for the source code!
+                  </p>
+                  <p class="footer-text">
+                    <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+                    Copyright &copy;<script>document.write(new Date().getFullYear());</script> All rights reserved | This template is edited by Cindy Wang, Irene Chen and Kevin Miao from <i class="fa fa-heart-o" aria-hidden="true"></i> by <a href="https://colorlib.com" target="_blank">Colorlib</a>
+                    <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+                  </p>
+                </div>
+              </div>
+
+            </div>
+          </div>
+          </footer>
+
+  </body>
+</html>

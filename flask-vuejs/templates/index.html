@@ -1,0 +1,31 @@
+{% extends "layout.html" %}
+
+{% block style %}
+<style>
+#links {
+  margin-top: 30px;
+}
+#links ul {
+  list-style-type: none;
+  padding: 0;
+}
+#links li {
+  display: inline-block;
+  margin: 0 10px;
+}
+</style>
+{% endblock %}
+
+{% block body %}
+<div id="links">
+  <h1>Examples & Tips - Flask with Vue.js</h1>
+  <a href="https://github.com/yymm/flask-vuejs">README</a>
+  <ul>
+    <li><a href="(( url_for('example') ))">Jinja2 & Vue.js</a></li>
+  </ul>
+  <h2>Single Page Application</h2>
+  <h3>using CDN</h3>
+  <h3>using Node.js</h3>
+  <h2>Ruins...</h2>
+</div>
+{% endblock %}
