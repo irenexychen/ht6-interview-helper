@@ -115,8 +115,13 @@ class InterviewAI(object):
             if circles is not None:
                 print(circles)
 
+                circles = np.asarray(circles)
                 # get circle shortest distance away from centre of bounding box, which is (hopefully) the eyeball
-                
+                n_dims = circles.ndims 
+
+                for i in range(n_dims-2):
+                    circles = circles[0]
+                    
                 pupil = min(circles, key=lambda c : (c[0] - w / 2) * (c[0] - w / 2) + (c[1] - h / 2) *(c[1] - h / 2))
 
                 if self.is_demo:
