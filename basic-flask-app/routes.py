@@ -1,15 +1,33 @@
 from flask import Flask, render_template, Response, jsonify, request
 from camera import VideoCamera
+import cv2
 
 video_camera = None
 global_frame = None
 
 app = Flask(__name__)
 
-# two decorators, same function
 @app.route('/')
 def index():
     return render_template('index.html', the_title='ElevAIte')
+
+@app.route('/register')
+def register():
+    return render_template('register.html')
+
+@app.route('/login')
+def login():
+    return render_template('login.html')
+
+# @app.route('/camera')
+# def camera():
+# 	return Response(video_stream(),
+#                     mimetype='multipart/x-mixed-replace; boundary=frame')
+
+@app.route('/analysis')
+def analysis():
+    return render_template('analysis.html')
+
 
 @app.route('/camera')
 def camera():
@@ -54,7 +72,6 @@ def video_stream():
 def video_viewer():
     return Response(video_stream(),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
- 
  
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True, threaded=True)
