@@ -117,11 +117,11 @@ class InterviewAI(object):
                 if 4 in circles.shape:
                     while len(circles.shape) > 2:
                         circles = circles[0]
-                        circles = circles.reshape((-1, 4))
+                    circles = circles.reshape((-1, 4))
                 elif 3 in circles.shape:
                     while len(circles.shape) > 2:
                         circles = circles[0]
-                        circles = circles.reshape((-1, 3))
+                    circles = circles.reshape((-1, 3))
 
                 pupil = min(circles, key=lambda c : (c[0] - w / 2) * (c[0] - w / 2) + (c[1] - h / 2) *(c[1] - h / 2))
                 if self.is_demo:
