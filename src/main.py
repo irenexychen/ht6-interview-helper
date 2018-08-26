@@ -16,7 +16,7 @@ def main():
 	parser.add_argument('--eye', default=True, action='store_true')
 	parser.add_argument('--emo', default=True, action='store_true')
 	parser.add_argument('--gcloud', default=True, action='store_true')
-	parser.add_argument('--out_dir', default='../logs/')
+	parser.add_argument('--out_dir', default='logs/')
 	args = parser.parse_args()
 
 	setup()
