@@ -22,10 +22,10 @@ def main():
 	setup()
 	stats = StatsCollector()
 	interviewer = InterviewAI( stats, 
-							   is_demo=args.demo, 
-							   run_eye_tracker=args.eye,
-							   run_emo_threads=args.emo,
-							   run_gcloud_threads=args.gcloud
+							   is_demo=args.demo
+							   # run_eye_tracker=args.eye,
+							   # run_emo_threads=args.emo,
+							   # run_gcloud_threads=args.gcloud
 							 )
 
 	interviewer.begin()
