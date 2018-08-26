@@ -10,12 +10,13 @@ import argparse
 
 def main():
 
-	out_file = '../logs/out.json'
+	out_file = 'out.json'
 	parser = argparse.ArgumentParser()
 	parser.add_argument('--demo', action='store_true')
 	parser.add_argument('--eye', action='store_true')
 	parser.add_argument('--emo', action='store_true')
 	parser.add_argument('--gcloud', action='store_true')
+	parser.add_argument('--out_dir', default='../logs/')
 	args = parser.parse_args()
 
 	setup()
@@ -29,7 +30,7 @@ def main():
 
 	interviewer.begin()
 	stats.print_stats()
-	stats.to_json(out_file)
+	stats.to_json(args.out_dir + out_file)
 	# return 0s
 
 if __name__ == "__main__":

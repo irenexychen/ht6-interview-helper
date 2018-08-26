@@ -8,9 +8,9 @@ class InterviewAI(object):
 
     def __init__(self, stats, video_path=None, 
                  is_demo=False, 
-                 run_eye_tracker=False,
-                 run_emo_threads=False, 
-                 run_gcloud_threads=False):
+                 run_eye_tracker=True,
+                 run_emo_threads=True, 
+                 run_gcloud_threads=True):
         self.stats = stats
         self.start_time = time.time()
         self.video_path = video_path
@@ -119,12 +119,14 @@ class InterviewAI(object):
                 
                 # check if eye is looking away, based on the position of the eyeball in the eye's bounding box
                 if not self.is_looking_forward(w, h, pupil[0], pupil[1]):
-                    print ('Looking away')
+                    if DEBUG:
+                        print ('Looking away')
                     eye_contact = False
 
         # can't find eyes...
         if len(eye_box_dims) < 2:
-            print ('Cannot detect eyeballs')
+            if DEBUG:
+                print ('Cannot detect eyeballs')
             eye_contact = False
 
         # if looking away, bounding box size for two eyes will be very different sizes
@@ -176,7 +178,8 @@ class InterviewAI(object):
                 STANDARD_BOUND_BOX_SIZE / ((eye_box_dims[0][0] + eye_box_dims[1][0]) / 2)
             if abs(eye_box_dims[0][0] - eye_box_dims[1][0]) > revised_eye_diff_tolerance \
             or abs(eye_box_dims[0][1] - eye_box_dims[1][1]) > revised_eye_diff_tolerance:
-                print('Head turning away')
+                if DEBUG:
+                    print('Head turning away')
                 eye_contact = False
         return True
 
@@ -191,7 +194,7 @@ class InterviewAI(object):
             self.emo_threads.append(new_thread)
 
     def crop_face(self, img):
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        # img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         face_cascade = cv2.CascadeClassifier(HAAR_CASCADE_FRONTAL_FACE)
 
         faces = face_cascade.detectMultiScale(img, 1.3, 5)

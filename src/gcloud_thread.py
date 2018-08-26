@@ -61,6 +61,57 @@ class ResumableMicrophoneStream(transcribe_streaming_mic.MicrophoneStream):
             yield byte_data
 
 
+class SimulatedMicrophoneStream(ResumableMicrophoneStream):
+    def __init__(self, audio_src, *args, **kwargs):
+        super(SimulatedMicrophoneStream, self).__init__(*args, **kwargs)
+        self._audio_src = audio_src
+
+    def _delayed(self, get_data):
+        total_bytes_read = 0
+        start_time = time.time()
+
+        chunk = get_data(self._bytes_per_chunk)
+
+        while chunk and not self.closed:
+            total_bytes_read += len(chunk)
+            expected_yield_time = start_time + (
+                    total_bytes_read / self._bytes_per_second)
+            now = time.time()
+            if expected_yield_time > now:
+                time.sleep(expected_yield_time - now)
+
+            yield chunk
+
+            chunk = get_data(self._bytes_per_chunk)
+
+    def _stream_from_file(self, audio_src):
+        with open(audio_src, 'rb') as f:
+            for chunk in self._delayed(
+                    lambda b_per_chunk: f.read(b_per_chunk)):
+                yield chunk
+
+        # Continue sending silence - 10s worth
+        trailing_silence = six.StringIO(
+                b'\0' * self._bytes_per_second * 10)
+        for chunk in self._delayed(trailing_silence.read):
+            yield chunk
+
+    def _thread(self):
+        for chunk in self._stream_from_file(self._audio_src):
+            self._fill_buffer(chunk)
+        self._fill_buffer(None)
+
+    def __enter__(self):
+        self.closed = False
+
+        threading.Thread(target=self._thread).start()
+
+        return self
+
+    def __exit__(self, type, value, traceback):
+        self.closed = True
+
+
 def duration_to_secs(duration):
     return duration.seconds + (duration.nanos / float(1e9))
 
@@ -90,11 +141,11 @@ class GCloudThread(threading.Thread):
       self.exitflag = False
       self.num_cycles = 0
       self.first = True
-      print "Starting thread ID : " + str(self.thread_ID)
+      print "Starting Google Cloud thread ID : " + str(self.thread_ID)
 
     def run(self):
         self.transcribe_mic_stream()
-        print('Thread {0} exiting...'.format(self.thread_ID))
+        print('Google Cloud thread {0} exiting...'.format(self.thread_ID))
     
     def transcribe_mic_stream(self):
         client = speech.SpeechClient()
@@ -107,6 +158,15 @@ class GCloudThread(threading.Thread):
         streaming_config = types.StreamingRecognitionConfig(
             config=config,
             interim_results=True)
+
+
+    # if audio_src:
+    #     mic_manager = SimulatedMicrophoneStream(
+    #             audio_src, sample_rate, int(RATE / 10))
+    # else:
+    #     mic_manager = ResumableMicrophoneStream(
+    #             sample_rate, int(RATE / 10))
+
 
         mic_manager = ResumableMicrophoneStream(
                 RATE, int(RATE / 10))

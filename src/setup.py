@@ -7,6 +7,11 @@ import time
 import Queue
 import threading
 
+##############
+DEBUG = False
+##############
+
+
 INDICO_API_KEY = 'e9e61ec5e27e2f14c33cfaba8ab00585'
 
 def setup():
@@ -16,7 +21,7 @@ def setup():
 RATE = 16000
 CHUNK = int(RATE / 10)  # 100ms
 
-VIDEO_CAPTURE_TIME_LIMIT = 100     		#seconds
+VIDEO_CAPTURE_TIME_LIMIT = 180     		#seconds
 CV2_FPS = 10
 STANDARD_BOUND_BOX_SIZE = 56
 STANDARD_EYE_CIRCLE_SIZE = 8

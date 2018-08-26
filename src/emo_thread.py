@@ -7,7 +7,7 @@ class EmotionsThread(threading.Thread):
       self.stats = stats
       self.work_queue = work_queue
       self.exitflag = False
-      print "Starting thread ID : " + str(self.thread_ID)
+      print "Starting emotion thread ID : " + str(self.thread_ID)
 
     def run(self):
         while not self.exitflag:
@@ -20,13 +20,13 @@ class EmotionsThread(threading.Thread):
             else:
                 EMO_MUTEX.release()
             time.sleep(1)
-        print('Thread {0} exiting...'.format(self.thread_ID))
+        print('Emotion thread {0} exiting...'.format(self.thread_ID))
                
     def process_emotions(self, face_img):
         fer_dict = indicoio.fer(face_img)
         max_emotion = max(FACIAL_EMOTIONS, key=lambda x : fer_dict[x])
         self.stats.inc_emotion(max_emotion)
-        print('Thread {0} : '.format(self.thread_ID) + max_emotion)
+        # print('Emotion thread {0} : '.format(self.thread_ID) + max_emotion)
         # print('Size of workqueue: {0}'.format(self.work_queue.qsize()))
 
     def set_exit_flag(self):
