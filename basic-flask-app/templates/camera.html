@@ -49,9 +49,16 @@
 			    </div>
 			  </header><!-- #header -->
 
-
-
-
+			    <div>
+				<h1>Streaming Video Recorder</h1>
+				  <div id="recorder">
+				    <button id="record">Record</button>
+				    <button id="stop">Stop</button>
+				    <a id="download"></a>
+				    <script type="text/javascript" src="{{ url_for('static', filename='js/recorder.js') }}"></script>      
+				  </div>
+				  <img id="video" src="{{ url_for('video_viewer') }}">
+				</div>
 
 
 
@@ -98,6 +105,3 @@
 			<script src="../static/js/main.js"></script>	
 		</body>
 	</html>
-
-
-
