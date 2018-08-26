@@ -110,9 +110,9 @@ class InterviewAI(object):
             eye_img = img[y : y + h, x : x + w]
             circles = self.detect_pupils(eye_img, (w + h) / 2)
             if circles is not None:
-
+                print(circles)
                 # get circle shortest distance away from centre of bounding box, which is (hopefully) the eyeball
-                pupil = min(circles[0], key=lambda c : (c[0] - w / 2) * (c[0] - w / 2) + abs(c[1] - h / 2) *(c[1] - h / 2))
+                pupil = min(circles, key=lambda c : (c[0] - w / 2) * (c[0] - w / 2) + (c[1] - h / 2) *(c[1] - h / 2))
 
                 if self.is_demo:
                     cv2.circle(img, (x + int(pupil[0]), y + int(pupil[1])), int(pupil[2]), RED, 3, cv2.LINE_AA)
