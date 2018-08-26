@@ -1,4 +1,3 @@
-
 import cv2
 import threading
 
@@ -9,7 +8,7 @@ class RecordingThread (threading.Thread):
         self.isRunning = True
 
         self.cap = camera
-        fourcc = cv2.VideoWriter_fourcc(*'')
+        fourcc = cv2.VideoWriter_fourcc(*'MP4V')
         self.out = cv2.VideoWriter('./static/video.mp4',fourcc, 30.0, (int(self.cap.get(3)), int(self.cap.get(4))))
 
     def run(self):
