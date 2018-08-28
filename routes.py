@@ -13,8 +13,17 @@ global_frame = None
 app = Flask(__name__)
 
 @app.route('/')
+@app.route('/index.html')
 def index():
     return render_template('index.html', the_title='ElevAIte')
+
+@app.route('/login')
+def login():
+    return render_template('login.html')
+
+@app.route('/analytics')
+def analytics():
+    return render_template('analytics.html')
 
 @app.route('/demo_status', methods=['POST'])
 def demo_status():

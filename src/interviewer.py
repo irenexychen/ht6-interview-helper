@@ -8,7 +8,7 @@ import sys
 class InterviewAI(object):
 
     def __init__(self, stats, video_path=None, 
-                 is_demo=False, 
+                 is_demo=True, 
                  run_eye_tracker=True,
                  run_emo_threads=True, 
                  run_gcloud_threads=True):

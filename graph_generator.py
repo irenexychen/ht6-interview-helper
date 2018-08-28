@@ -2,7 +2,10 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import json
 
-raw = json['list']
+with open ('./logs/out.json') as f:
+	data = json.load(f)
+
+raw = data['wpm']
 wpm = []
 time = []
 for i in raw:
@@ -24,9 +27,9 @@ plt.yticks(range(5000, 30001, 5000), fontsize=16)
 plt.xlabel("Time Elapsed", fontsize=16)  
 plt.ylabel("Word Per Minute(WPM)", fontsize=16)  
 
-plt.axhline(y=150,linewidth=1, color=r)
-plt.axhline(y=120,linewidth=1, color=g)
+# plt.axhline(y=150,linewidth=1, color="r")
+# plt.axhline(y=120,linewidth=1, color="g")
 
-plt.plot(time.values, wpm.values,color="#3F5D7D")  
+plt.plot(time, wpm,color="#3F5D7D")  
 
 plt.savefig("wpm-time-graph.png", bbox_inches="tight");
